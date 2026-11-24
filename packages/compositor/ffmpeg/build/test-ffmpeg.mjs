@@ -61,6 +61,13 @@ assert(
 		shouldHaveAv1Encoder,
 );
 
+// Listed in Windows and Linux x64 (glibc) builds; whether they start depends on the GPU
+const shouldHaveQsvEncoders = process.env.EXPECT_QSV_ENCODERS === '1';
+assert.equal(
+	encoders.stdout.toString('utf8').includes('h264_qsv'),
+	shouldHaveQsvEncoders,
+);
+
 const exit2 = spawnSync(
 	ffmpegBinary,
 	['-i', 'sample-5s.webm', '-t', '1', 'out-test.mp4', '-y'],
