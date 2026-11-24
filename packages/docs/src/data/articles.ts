@@ -7228,6 +7228,15 @@ export const articles = [
 		slug: 'openai-whisper/openai-whisper-api-to-captions',
 	},
 	{
+		id: 'openai-whisper/openvino-model-server',
+		title: 'Transcribing locally with OpenVINO Model Server',
+		relativePath: 'docs/openai-whisper/openvino-model-server.mdx',
+		compId: 'articles-docs-openai-whisper-openvino-model-server',
+		crumb: '@remotion/openai-whisper',
+		noAi: false,
+		slug: 'openai-whisper/openvino-model-server',
+	},
+	{
 		id: 'opentimeline/export',
 		title: 'Exporting OpenTimelineIO',
 		relativePath: 'docs/opentimeline/export.mdx',

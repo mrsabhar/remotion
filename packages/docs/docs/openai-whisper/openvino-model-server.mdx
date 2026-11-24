@@ -1,0 +1,92 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-openai-whisper-openvino-model-server.png
+title: Transcribing locally with OpenVINO Model Server
+sidebar_label: OpenVINO Model Server
+crumb: '@remotion/openai-whisper'
+---
+
+# Transcribing locally with OpenVINO Model Server
+
+[OpenVINO Model Server](https://docs.openvino.ai/2026/model-server/ovms_what_is_openvino_model_server.html) (OVMS) can serve a Whisper model on your own machine through an OpenAI-compatible `/v3/audio/transcriptions` endpoint.  
+The audio stays on your computer and no API key is needed.  
+OVMS runs on Intel CPUs and GPUs, and on the NPU for transcripts without word timestamps (see [Devices](#devices)).
+
+Its output can be passed to [`openAiWhisperApiToCaptions()`](/docs/openai-whisper/openai-whisper-api-to-captions) without changes.
+
+## Requirements
+
+- OVMS 2026.3 or later, from the [GitHub releases](https://github.com/openvinotoolkit/model_server/releases) (Windows and Linux binary packages) or the `openvino/model_server` Docker image.
+- A Whisper model with **word timestamps** enabled. See below.
+
+## 1. Export a Whisper model with word timestamps
+
+Whisper models that are already converted to OpenVINO, such as `OpenVINO/whisper-base-int8-ov`, return only the full `text`.  
+[`openAiWhisperApiToCaptions()`](/docs/openai-whisper/openai-whisper-api-to-captions) needs timed words (or timed segments), so a text-only response throws an error.
+
+Export the model once with the `export_model.py` script from the [OVMS repository](https://github.com/openvinotoolkit/model_server/tree/main/demos/common/export_models). It needs Python 3.10 or higher.
+
+```bash
+pip install -r requirements.txt
+python export_model.py speech2text \
+  --source_model openai/whisper-base \
+  --model_name whisper-base \
+  --weight-format int8 \
+  --model_repository_path models \
+  --config_file_path models/config.json \
+  --target_device CPU \
+  --enable_word_timestamps
+```
+
+This writes the model and a `graph.pbtxt` with `enable_word_timestamps: true` into `models/whisper-base`.
+
+## 2. Start the server
+
+On Windows, extract the release package and run `setupvars.bat` once per terminal, then:
+
+```bash
+ovms --rest_port 8000 --config_path models/config.json
+```
+
+On Linux, extract the package for your Ubuntu version (or use the Docker image) and run the same command.
+
+## 3. Transcribe and convert to captions
+
+Send the audio as `multipart/form-data` and request word timestamps.  
+OVMS currently accepts `mp3` and `wav` files, so convert other formats first, for example with `ffmpeg -i input.mp4 -ar 16000 -ac 1 audio.wav`.
+
+```ts title="transcribe.ts"
+import {readFileSync} from 'fs';
+import {openAiWhisperApiToCaptions} from '@remotion/openai-whisper';
+
+const form = new FormData();
+form.append('model', 'whisper-base');
+form.append('file', new Blob([readFileSync('audio.wav')]), 'audio.wav');
+form.append('response_format', 'verbose_json');
+form.append('timestamp_granularities[]', 'word');
+
+const response = await fetch('http://localhost:8000/v3/audio/transcriptions', {
+  method: 'POST',
+  body: form,
+});
+const transcription = await response.json();
+
+const {captions} = openAiWhisperApiToCaptions({transcription});
+```
+
+The [`openai`](https://npm.im/openai) package also works if you set `baseURL` to `http://localhost:8000/v3`.
+
+## Devices
+
+The device is set with `target_device` in the model's `graph.pbtxt` (`"CPU"`, `"GPU"` or `"NPU"`).
+
+- **CPU and GPU:** transcription with word timestamps works.
+- **NPU:** transcription works with `enable_word_timestamps: false`, which returns only `text`. In our test, a model with word timestamps enabled failed on the NPU with `Response generation failed`.
+- Loading a model onto the GPU or NPU takes longer than on the CPU, so keep the server running between jobs.
+
+This was tested with OVMS 2026.4.1 on Windows 11 (CPU, GPU and NPU) and with the Ubuntu 24.04 package on Linux under WSL2 (CPU only). The Ubuntu 24.04 package expects `libxml2.so.2`, which newer Ubuntu releases no longer provide, so prefer the Docker image or a supported Ubuntu version.
+
+## See also
+
+- [`openAiWhisperApiToCaptions()`](/docs/openai-whisper/openai-whisper-api-to-captions)
+- [`@remotion/install-whisper-cpp`](/docs/install-whisper-cpp)
+- [Serving audio models via the OpenAI API (OVMS docs)](https://docs.openvino.ai/2026/model-server/ovms_demos_audio.html)

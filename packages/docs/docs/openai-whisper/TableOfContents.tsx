@@ -17,6 +17,10 @@ export const TableOfContents: React.FC = () => {
 					<strong>{'isOpenAiWhisperTranscript()'}</strong>
 					<div>Recognize OpenAI Whisper transcript signatures</div>
 				</TOCItem>
+				<TOCItem link="/docs/openai-whisper/openvino-model-server">
+					<strong>{'OpenVINO Model Server'}</strong>
+					<div>Transcribe locally on Intel hardware and get captions</div>
+				</TOCItem>
 			</Grid>
 		</div>
 	);

@@ -646,6 +646,7 @@ const sidebars: SidebarsConfig = {
 			items: [
 				'openai-whisper/openai-whisper-api-to-captions',
 				'openai-whisper/is-openai-whisper-transcript',
+				'openai-whisper/openvino-model-server',
 			],
 		},
 		{
