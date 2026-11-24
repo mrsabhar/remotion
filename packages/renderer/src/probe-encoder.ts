@@ -24,7 +24,7 @@ const probeCache = new Map<string, EncoderProbeResult>();
 
 const hardwareEncoderHint = (encoderName: string) => {
 	if (encoderName.endsWith('_qsv')) {
-		return " Remotion's bundled FFmpeg has no QSV. Use an FFmpeg build with QSV support (via `binariesDirectory` / `--binaries-directory`) and the Intel graphics driver.";
+		return " This FFmpeg has no QSV. Remotion's bundled FFmpeg includes it on Windows x64 and Linux x64 (glibc); on other platforms use an FFmpeg build with QSV support (via `binariesDirectory` / `--binaries-directory`) and the Intel graphics driver.";
 	}
 
 	if (encoderName.endsWith('_nvenc')) {
