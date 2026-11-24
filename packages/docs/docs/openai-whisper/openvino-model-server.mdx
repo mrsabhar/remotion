@@ -80,7 +80,7 @@ The [`openai`](https://npm.im/openai) package also works if you set `baseURL` to
 The device is set with `target_device` in the model's `graph.pbtxt` (`"CPU"`, `"GPU"` or `"NPU"`).
 
 - **CPU and GPU:** transcription with word timestamps works.
-- **NPU:** transcription works with `enable_word_timestamps: false`, which returns only `text`. In our test, a model with word timestamps enabled failed on the NPU with `Response generation failed`.
+- **NPU:** transcription works with `enable_word_timestamps: false`, which returns only `text`. In our tests with OVMS 2026.4.1, a model with word timestamps enabled failed on the NPU with `Response generation failed`, both with the default export and with an export using `--disable-stateful`. Use the CPU or GPU if you need word timestamps.
 - Loading a model onto the GPU or NPU takes longer than on the CPU, so keep the server running between jobs.
 
 This was tested with OVMS 2026.4.1 on Windows 11 (CPU, GPU and NPU) and with the Ubuntu 24.04 package on Linux under WSL2 (CPU only). The Ubuntu 24.04 package expects `libxml2.so.2`, which newer Ubuntu releases no longer provide, so prefer the Docker image or a supported Ubuntu version.
