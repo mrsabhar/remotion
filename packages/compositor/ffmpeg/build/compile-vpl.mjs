@@ -4,25 +4,23 @@ import {join} from 'node:path';
 import {getCmakeCommand, getToolPath} from './compile-av1.mjs';
 import {PREFIX} from './const.mjs';
 
-// Intel oneVPL dispatcher (MIT). It is linked statically into libavcodec and
-// loads the actual QSV runtime from the Intel graphics driver when an encoder
-// is opened, so no extra DLL is shipped and machines without Intel graphics
-// are unaffected. FFmpeg 7.1 needs libvpl >= 2.6.
 const VPL_TAG = 'v2.15.0';
 const VPL_BUILD_DIR = 'vpl-build';
 
-export const enableVpl = (shouldEnableQsv) => {
+export const enableVpl = (shouldEnableQsv, isWindows) => {
 	if (!shouldEnableQsv) {
 		return;
 	}
 
-	const toolchain = {
-		cc: getToolPath('x86_64-w64-mingw32-gcc'),
-		cxx: getToolPath('x86_64-w64-mingw32-g++'),
-		rc: getToolPath('x86_64-w64-mingw32-windres'),
-		ar: getToolPath('x86_64-w64-mingw32-ar'),
-		ranlib: getToolPath('x86_64-w64-mingw32-ranlib'),
-	};
+	const toolchain = isWindows
+		? {
+				cc: getToolPath('x86_64-w64-mingw32-gcc'),
+				cxx: getToolPath('x86_64-w64-mingw32-g++'),
+				rc: getToolPath('x86_64-w64-mingw32-windres'),
+				ar: getToolPath('x86_64-w64-mingw32-ar'),
+				ranlib: getToolPath('x86_64-w64-mingw32-ranlib'),
+			}
+		: null;
 
 	if (!existsSync('vpl')) {
 		execSync('git clone https://github.com/intel/libvpl.git vpl', {
@@ -52,21 +50,21 @@ export const enableVpl = (shouldEnableQsv) => {
 			'-DBUILD_EXPERIMENTAL=OFF',
 			'-DINSTALL_EXAMPLE_CODE=OFF',
 			'-DCMAKE_POSITION_INDEPENDENT_CODE=ON',
-			'-DCMAKE_SYSTEM_NAME=Windows',
-			`-DCMAKE_C_COMPILER=${toolchain.cc}`,
-			`-DCMAKE_CXX_COMPILER=${toolchain.cxx}`,
-			`-DCMAKE_RC_COMPILER=${toolchain.rc}`,
-			`-DCMAKE_AR=${toolchain.ar}`,
-			`-DCMAKE_RANLIB=${toolchain.ranlib}`,
-		].join(' '),
+			isWindows ? '-DCMAKE_SYSTEM_NAME=Windows' : null,
+			isWindows ? `-DCMAKE_C_COMPILER=${toolchain.cc}` : null,
+			isWindows ? `-DCMAKE_CXX_COMPILER=${toolchain.cxx}` : null,
+			isWindows ? `-DCMAKE_RC_COMPILER=${toolchain.rc}` : null,
+			isWindows ? `-DCMAKE_AR=${toolchain.ar}` : null,
+			isWindows ? `-DCMAKE_RANLIB=${toolchain.ranlib}` : null,
+		]
+			.filter(Boolean)
+			.join(' '),
 		{cwd: VPL_BUILD_DIR, stdio: 'inherit'},
 	);
 
 	execSync('make', {cwd: VPL_BUILD_DIR, stdio: 'inherit'});
 	execSync('make install', {cwd: VPL_BUILD_DIR, stdio: 'inherit'});
 
-	// FFmpeg is configured without `--pkg-config-flags=--static`, so move the
-	// static link dependencies of the dispatcher from Libs.private to Libs.
 	const pcPath = join(installPrefix, 'lib', 'pkgconfig', 'vpl.pc');
 	const pc = readFileSync(pcPath, 'utf8');
 	const privateLibs = pc.match(/^Libs\.private:(.*)$/m)?.[1]?.trim() ?? '';

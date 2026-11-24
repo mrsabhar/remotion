@@ -61,7 +61,7 @@ assert(
 		shouldHaveAv1Encoder,
 );
 
-// QSV encoders are listed in the Windows build; whether they start depends on the GPU
+// Listed in Windows and Linux x64 (glibc) builds; whether they start depends on the GPU
 const shouldHaveQsvEncoders = process.env.EXPECT_QSV_ENCODERS === '1';
 assert.equal(
 	encoders.stdout.toString('utf8').includes('h264_qsv'),
