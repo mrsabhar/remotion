@@ -53,6 +53,7 @@ const {
 	publicDirOption,
 	metadataOption,
 	hardwareAccelerationOption,
+	hardwareEncoderOption,
 	chromeModeOption,
 	offthreadVideoThreadsOption,
 	mediaCacheSizeInBytesOption,
@@ -640,6 +641,9 @@ export const benchmarkCommand = async (
 					onArtifact: () => undefined,
 					metadata,
 					hardwareAcceleration: hardwareAccelerationOption.getValue({
+						commandLine: parsedCli,
+					}).value,
+					hardwareEncoder: hardwareEncoderOption.getValue({
 						commandLine: parsedCli,
 					}).value,
 					chromeMode,

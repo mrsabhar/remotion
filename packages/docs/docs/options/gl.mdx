@@ -27,6 +27,8 @@ Select the OpenGL renderer backend for Chromium. <br />Accepted values:
 - `"vulkan"` (_from Remotion v4.0.41_)
 - `"angle-egl"` (_from Remotion v4.0.51_)
 
+If a composition uses WebGPU (for example `@remotion/whisper-webgpu` or the three.js `WebGPURenderer`), set this to `"angle"`. In testing on Windows 11 with an Intel Arc GPU, Remotion's headless browser got no WebGPU adapter without it and found the GPU with it.
+
 The default is `null`, letting Chrome decide, except on Lambda and Cloud Run where the default is `"swangle"`
 
 ## CLI flag

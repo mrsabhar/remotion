@@ -46,6 +46,7 @@ import {framesOption} from './frames';
 import {glOption} from './gl';
 import {gopSizeOption} from './gop-size';
 import {hardwareAccelerationOption} from './hardware-acceleration';
+import {hardwareEncoderOption} from './hardware-encoder';
 import {headlessOption} from './headless';
 import {highContrastOption} from './high-contrast';
 import {ignoreCertificateErrorsOption} from './ignore-certificate-errors';
@@ -178,6 +179,7 @@ export const allOptions = {
 	disableGitSourceOption,
 	metadataOption,
 	hardwareAccelerationOption,
+	hardwareEncoderOption,
 	chromeModeOption,
 	apiKeyOption,
 	licenseKeyOption,

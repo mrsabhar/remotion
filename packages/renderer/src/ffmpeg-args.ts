@@ -6,10 +6,20 @@ import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import {DEFAULT_COLOR_SPACE, type ColorSpace} from './options/color-space';
 import {validateGopSize} from './options/gop-size';
+import type {HardwareEncoder} from './options/hardware-encoder';
 import {validateProResBitsPerMacroblock} from './options/prores-bits-per-macroblock';
 import type {X264Preset} from './options/x264-preset';
 import type {PixelFormat} from './pixel-format';
 import {truthy} from './truthy';
+
+// QSV ICQ quality (lower = better). Measured on one Intel Core Ultra system with
+// h264_qsv/hevc_qsv, veryslow preset, lookahead on, VMAF scored at 1080p:
+//   simple 4K motion-graphics ad: 22 -> VMAF 98.0, 28 -> 97.5, 34 -> 96.3 (H.264 and HEVC)
+//   detailed 4K footage:          22 -> 98.2 (87 Mbps), 26 -> 96.8 (37 Mbps)    (H.264)
+// 23 therefore targets a VMAF of roughly 97-98 (not compared against x264's CRF 18 default).
+// On detailed footage it needs a high bitrate; raise the number to trade quality for size.
+// Override with the REMOTION_QSV_QUALITY environment variable.
+const DEFAULT_QSV_QUALITY = '23';
 
 const firstEncodingStepOnly = ({
 	hasPreencoded,
@@ -25,6 +35,7 @@ const firstEncodingStepOnly = ({
 	encodingBufferSize,
 	hardwareAcceleration,
 	hardwareAccelerated,
+	hardwareEncoder,
 	cpuCount,
 	lambdaMemoryInBytes,
 }: {
@@ -41,6 +52,7 @@ const firstEncodingStepOnly = ({
 	encodingBufferSize: string | null;
 	hardwareAcceleration: HardwareAccelerationOption;
 	hardwareAccelerated: boolean;
+	hardwareEncoder: HardwareEncoder | null;
 	cpuCount: number;
 	lambdaMemoryInBytes: number | null;
 }): string[][] => {
@@ -71,6 +83,22 @@ const firstEncodingStepOnly = ({
 			? ['-row-mt', '1']
 			: null,
 		x264Preset ? ['-preset', x264Preset] : null,
+		// QSV has no default quality target (NVENC-like fixed low bitrate).
+		// Use intelligent constant quality (ICQ) + lookahead, equivalent to CRF.
+		hardwareAccelerated &&
+		hardwareEncoder === 'qsv' &&
+		(codec === 'h264' || codec === 'h265') &&
+		!videoBitrate &&
+		(crf === null || typeof crf === 'undefined')
+			? [
+					'-global_quality',
+					process.env.REMOTION_QSV_QUALITY ?? DEFAULT_QSV_QUALITY,
+					'-look_ahead',
+					'1',
+					// oneVPL target usage 1 (best quality): +~1 VMAF at equal size
+					...(x264Preset ? [] : ['-preset', 'veryslow']),
+				]
+			: null,
 		gopSize === null ? null : ['-g', String(gopSize)],
 		// Apply a fixed a timescale across all environments:
 		// https://discord.com/channels/809501355504959528/817306238811111454/1437471619089170613
@@ -101,6 +129,7 @@ export const generateFfmpegArgs = ({
 	encodingBufferSize,
 	colorSpace,
 	hardwareAcceleration,
+	hardwareEncoder,
 	indent,
 	logLevel,
 	cpuCount,
@@ -119,6 +148,7 @@ export const generateFfmpegArgs = ({
 	encodingBufferSize: string | null;
 	colorSpace: ColorSpace | null;
 	hardwareAcceleration: HardwareAccelerationOption;
+	hardwareEncoder: HardwareEncoder | null;
 	indent: boolean;
 	logLevel: LogLevel;
 	cpuCount: number;
@@ -136,6 +166,7 @@ export const generateFfmpegArgs = ({
 		proResBitsPerMacroblock,
 		crf,
 		hardwareAcceleration,
+		hardwareEncoder,
 		indent,
 		logLevel,
 		onLog: null,
@@ -214,6 +245,7 @@ export const generateFfmpegArgs = ({
 			gopSize,
 			hardwareAcceleration,
 			hardwareAccelerated,
+			hardwareEncoder,
 			cpuCount,
 			lambdaMemoryInBytes,
 		}),

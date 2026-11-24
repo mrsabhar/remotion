@@ -29,7 +29,10 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {HardwareAccelerationOption} from '@remotion/renderer/client';
+import type {
+	HardwareAccelerationOption,
+	HardwareEncoder,
+} from '@remotion/renderer/client';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {
 	AggregateRenderProgress,
@@ -134,6 +137,7 @@ export const renderVideoFlow = async ({
 	publicPath,
 	metadata,
 	hardwareAcceleration,
+	hardwareEncoder,
 	chromeMode,
 	audioLatencyHint,
 	imageSequencePattern,
@@ -211,6 +215,7 @@ export const renderVideoFlow = async ({
 	publicPath: string | null;
 	metadata: Record<string, string> | null;
 	hardwareAcceleration: HardwareAccelerationOption;
+	hardwareEncoder: HardwareEncoder | null;
 	chromeMode: ChromeMode;
 	audioLatencyHint: AudioContextLatencyCategory | null;
 	imageSequencePattern: string | null;
@@ -842,6 +847,7 @@ export const renderVideoFlow = async ({
 		onArtifact,
 		metadata: metadata ?? null,
 		hardwareAcceleration,
+		hardwareEncoder,
 		chromeMode,
 		mediaCacheSizeInBytes,
 		preferredEffectBackend,

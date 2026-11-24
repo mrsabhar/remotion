@@ -96,6 +96,13 @@ export const glOption = {
 					</li>
 				</ul>
 				<p>
+					If a composition uses WebGPU (for example{' '}
+					<code>@remotion/whisper-webgpu</code> or the three.js{' '}
+					<code>WebGPURenderer</code>), set this to <code>{'"angle"'}</code>. In
+					testing on Windows 11 with an Intel Arc GPU, Remotion&apos;s headless
+					browser got no WebGPU adapter without it and found the GPU with it.
+				</p>
+				<p>
 					The default is{' '}
 					<code>
 						{DEFAULT_OPENGL_RENDERER === null

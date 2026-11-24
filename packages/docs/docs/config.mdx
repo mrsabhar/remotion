@@ -1421,6 +1421,19 @@ import {Config} from '@remotion/cli/config';
 Config.setHardwareAcceleration('if-possible');
 ```
 
+## `setHardwareEncoder()`<AvailableFrom v="4.0.544" />
+
+<Options id="hardware-encoder" />
+<br />
+<br />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setHardwareAcceleration('if-possible');
+Config.setHardwareEncoder('qsv');
+```
+
 ## `overrideFfmpegCommand()`<AvailableFrom v="3.2.22" />
 
 Modifies the FFmpeg command that Remotion uses under the hood. It works reducer-style, meaning that you pass a function that takes a command as an argument and returns a new command.

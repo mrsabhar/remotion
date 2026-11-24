@@ -14,6 +14,7 @@ import {enforceAudioOption} from './enforce-audio';
 import {forSeamlessAacConcatenationOption} from './for-seamless-aac-concatenation';
 import {gopSizeOption} from './gop-size';
 import {hardwareAccelerationOption} from './hardware-acceleration';
+import {hardwareEncoderOption} from './hardware-encoder';
 import {imageSequencePatternOption} from './image-sequence-pattern';
 import {jpegQualityOption} from './jpeg-quality';
 import {licenseKeyOption} from './license-key';
@@ -66,6 +67,7 @@ export const optionsMap = {
 		audioCodec: audioCodecOption,
 		onBrowserDownload: onBrowserDownloadOption,
 		hardwareAcceleration: hardwareAccelerationOption,
+		hardwareEncoder: hardwareEncoderOption,
 		chromeMode: chromeModeOption,
 		licenseKey: licenseKeyOption,
 		sampleRate: sampleRateOption,
@@ -74,6 +76,7 @@ export const optionsMap = {
 		proResBitsPerMacroblock: proResBitsPerMacroblockOption,
 		separateAudioTo: separateAudioOption,
 		hardwareAcceleration: hardwareAccelerationOption,
+		hardwareEncoder: hardwareEncoderOption,
 	},
 	renderStill: {
 		mediaCacheSizeInBytes: mediaCacheSizeInBytesOption,

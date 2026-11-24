@@ -15,6 +15,7 @@ import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {getMaxLambdaMemory} from './memory/from-lambda-env';
 import type {ColorSpace} from './options/color-space';
+import type {HardwareEncoder} from './options/hardware-encoder';
 import type {X264Preset} from './options/x264-preset';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import type {PixelFormat} from './pixel-format';
@@ -22,7 +23,10 @@ import {
 	DEFAULT_PIXEL_FORMAT,
 	validateSelectedPixelFormatAndCodecCombination,
 } from './pixel-format';
-import {resolveHardwareAcceleration} from './probe-encoder';
+import {
+	resolveHardwareAcceleration,
+	resolveHardwareEncoder,
+} from './probe-encoder';
 import type {RemotionRawFrame} from './remotion-shared-memory';
 import {createRemotionSharedMemoryFfmpegBridge} from './remotion-shared-memory-ffmpeg';
 import {validateDimension, validateFps} from './validate';
@@ -68,6 +72,7 @@ type PreStitcherOptions = {
 	colorSpace: ColorSpace | null;
 	binariesDirectory: string | null;
 	hardwareAcceleration: HardwareAccelerationOption;
+	hardwareEncoder: HardwareEncoder | null;
 	onLog: OnLog;
 	inputMode: 'encoded-image' | 'remotion-shared-memory';
 	// Private per-render directory passed as -pool_dir so FFmpeg may open
@@ -187,9 +192,24 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 
 	validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 
+	const resolvedHardwareEncoder = resolveHardwareEncoder({
+		codec,
+		hardwareAcceleration: options.hardwareAcceleration,
+		hardwareEncoder: options.hardwareEncoder,
+		binariesDirectory: options.binariesDirectory,
+		indent: options.indent,
+		logLevel: options.logLevel,
+		crf: options.crf,
+		encodingMaxRate: options.encodingMaxRate,
+		encodingBufferSize: options.encodingBufferSize,
+		proResBitsPerMacroblock: options.proResBitsPerMacroblock,
+		probe: null,
+	});
+
 	const resolvedHardwareAcceleration = resolveHardwareAcceleration({
 		codec,
 		hardwareAcceleration: options.hardwareAcceleration,
+		hardwareEncoder: resolvedHardwareEncoder,
 		binariesDirectory: options.binariesDirectory,
 		indent: options.indent,
 		logLevel: options.logLevel,
@@ -214,6 +234,7 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 		encodingBufferSize: options.encodingBufferSize,
 		colorSpace: options.colorSpace,
 		hardwareAcceleration: resolvedHardwareAcceleration,
+		hardwareEncoder: resolvedHardwareEncoder,
 		indent: options.indent,
 		logLevel: options.logLevel,
 		cpuCount: getCpuCount(),

@@ -46,7 +46,10 @@ import {
 	DEFAULT_PIXEL_FORMAT,
 	validateSelectedPixelFormatAndCodecCombination,
 } from './pixel-format';
-import {resolveHardwareAcceleration} from './probe-encoder';
+import {
+	resolveHardwareAcceleration,
+	resolveHardwareEncoder,
+} from './probe-encoder';
 import {validateSelectedCodecAndProResCombination} from './prores-profile';
 import {getShouldRenderAudio} from './render-has-audio';
 import {validateDimension, validateFps} from './validate';
@@ -158,6 +161,7 @@ const innerStitchFramesToVideo = async (
 		separateAudioTo,
 		metadata,
 		hardwareAcceleration,
+		hardwareEncoder,
 		sampleRate,
 		onLog,
 	}: InternalStitchFramesToVideoOptions,
@@ -430,11 +434,28 @@ const innerStitchFramesToVideo = async (
 	}
 
 	// Parallel encoding already resolved the encoder in the pre-stitcher.
+	const resolvedHardwareEncoder = preEncodedFileLocation
+		? hardwareEncoder
+		: resolveHardwareEncoder({
+				codec,
+				hardwareAcceleration,
+				hardwareEncoder,
+				binariesDirectory,
+				indent: indent ?? false,
+				logLevel,
+				crf,
+				encodingMaxRate: maxRate,
+				encodingBufferSize: bufferSize,
+				proResBitsPerMacroblock,
+				probe: null,
+			});
+
 	const resolvedHardwareAcceleration = preEncodedFileLocation
 		? 'disable'
 		: resolveHardwareAcceleration({
 				codec,
 				hardwareAcceleration,
+				hardwareEncoder: resolvedHardwareEncoder,
 				binariesDirectory,
 				indent: indent ?? false,
 				logLevel,
@@ -488,6 +509,7 @@ const innerStitchFramesToVideo = async (
 			proResBitsPerMacroblock,
 			colorSpace,
 			hardwareAcceleration: resolvedHardwareAcceleration,
+			hardwareEncoder: resolvedHardwareEncoder,
 			indent,
 			logLevel,
 			cpuCount: getCpuCount(),
@@ -689,6 +711,7 @@ export const stitchFramesToVideo = ({
 	separateAudioTo,
 	metadata,
 	hardwareAcceleration,
+	hardwareEncoder,
 	sampleRate,
 }: StitchFramesToVideoOptions): Promise<Buffer | null> => {
 	return internalStitchFramesToVideo({
@@ -726,6 +749,7 @@ export const stitchFramesToVideo = ({
 		metadata: metadata ?? null,
 		separateAudioTo: separateAudioTo ?? null,
 		hardwareAcceleration: hardwareAcceleration ?? 'disable',
+		hardwareEncoder: hardwareEncoder ?? null,
 		sampleRate: sampleRate ?? 48000,
 		onLog: defaultOnLog,
 	});

@@ -27,6 +27,7 @@ import {validChromeModeOptions} from './options/chrome-mode';
 import {DEFAULT_COLOR_SPACE, validColorSpaces} from './options/color-space';
 import {validOpenGlRenderers} from './options/gl';
 import {hardwareAccelerationOptions} from './options/hardware-acceleration';
+import {hardwareEncoders} from './options/hardware-encoder';
 import {optionsMap} from './options/options-map';
 import {getOutputCodecOrUndefined} from './options/video-codec';
 import {x264PresetOptions} from './options/x264-preset';
@@ -52,6 +53,7 @@ export type {
 } from './options/default-editor';
 export {doubleClickActions} from './options/double-click-action';
 export {HardwareAccelerationOption} from './options/hardware-acceleration';
+export type {HardwareEncoder} from './options/hardware-encoder';
 export {ProResProfile} from './options/prores-profile';
 
 export const BrowserSafeApis = {
@@ -65,6 +67,7 @@ export const BrowserSafeApis = {
 	proResProfileOptions: NoReactInternals.proResProfileOptions,
 	x264PresetOptions,
 	hardwareAccelerationOptions,
+	hardwareEncoders,
 	validPixelFormats,
 	validOpenGlRenderers,
 	validPixelFormatsForCodec,

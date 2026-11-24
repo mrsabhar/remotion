@@ -2,6 +2,7 @@ import {afterEach, expect, test} from 'bun:test';
 import type {Codec} from '../codec';
 import {generateFfmpegArgs} from '../ffmpeg-args';
 import type {HardwareAccelerationOption} from '../options/hardware-acceleration';
+import type {HardwareEncoder} from '../options/hardware-encoder';
 
 const originalPlatform = process.platform;
 
@@ -19,10 +20,12 @@ const makeArgs = ({
 	codec,
 	crf = null,
 	hardwareAcceleration,
+	hardwareEncoder = null,
 }: {
 	codec: Codec;
 	crf?: number | null;
 	hardwareAcceleration: HardwareAccelerationOption;
+	hardwareEncoder?: HardwareEncoder | null;
 }) =>
 	generateFfmpegArgs({
 		hasPreencoded: false,
@@ -38,6 +41,7 @@ const makeArgs = ({
 		encodingBufferSize: null,
 		colorSpace: 'default',
 		hardwareAcceleration,
+		hardwareEncoder,
 		indent: false,
 		logLevel: 'info',
 		cpuCount: 4,
@@ -81,4 +85,33 @@ test('keeps explicit CRF when if-possible falls back to software', () => {
 	expect(args).toContain('libx264');
 	expect(args).toContain('-crf');
 	expect(args).toContain('20');
+});
+
+test('QSV: uses ICQ quality with look-ahead when no crf or bitrate is set', () => {
+	setPlatform('win32');
+
+	const args = makeArgs({
+		codec: 'h264',
+		hardwareAcceleration: 'required',
+		hardwareEncoder: 'qsv',
+	});
+
+	expect(args).toEqual(
+		expect.arrayContaining([
+			'h264_qsv',
+			'-global_quality',
+			'23',
+			'-look_ahead',
+		]),
+	);
+	expect(args).toContain('veryslow');
+});
+
+test('NVENC stays the default and gets no QSV arguments', () => {
+	setPlatform('win32');
+
+	const args = makeArgs({codec: 'h264', hardwareAcceleration: 'required'});
+
+	expect(args).toContain('h264_nvenc');
+	expect(args).not.toContain('-global_quality');
 });

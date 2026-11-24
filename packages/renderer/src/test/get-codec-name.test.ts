@@ -1,6 +1,7 @@
 import {afterAll, afterEach, describe, expect, mock, test} from 'bun:test';
 import type {Codec} from '../codec';
 import type {HardwareAccelerationOption} from '../options/hardware-acceleration';
+import type {HardwareEncoder} from '../options/hardware-encoder';
 
 // Mock remotion/version before importing the module under test
 mock.module('remotion/version', () => ({
@@ -22,12 +23,14 @@ const restorePlatform = () => {
 const callGetCodecName = ({
 	codec,
 	hardwareAcceleration,
+	hardwareEncoder = null,
 	crf,
 	encodingMaxRate = null,
 	encodingBufferSize = null,
 }: {
 	codec: Codec;
 	hardwareAcceleration: HardwareAccelerationOption;
+	hardwareEncoder?: HardwareEncoder | null;
 	crf?: number;
 	encodingMaxRate?: string | null;
 	encodingBufferSize?: string | null;
@@ -35,6 +38,7 @@ const callGetCodecName = ({
 	getCodecName({
 		codec,
 		hardwareAcceleration,
+		hardwareEncoder,
 		crf: crf ?? null,
 		encodingMaxRate,
 		encodingBufferSize,
@@ -265,3 +269,54 @@ describe('getCodecName - audio codecs return null', () => {
 });
 
 afterAll(restorePlatform);
+
+describe('getCodecName - Intel QSV (hardwareEncoder: "qsv")', () => {
+	afterEach(() => {
+		restorePlatform();
+	});
+
+	test('defaults to NVENC on win32', () => {
+		setPlatform('win32');
+		expect(
+			callGetCodecName({codec: 'h264', hardwareAcceleration: 'required'}),
+		).toEqual({encoderName: 'h264_nvenc', hardwareAccelerated: true});
+	});
+
+	test.each([
+		['h264', 'h264_qsv'],
+		['h265', 'hevc_qsv'],
+	] as const)('%s picks %s on win32 and linux', (codec, encoderName) => {
+		for (const platform of ['win32', 'linux']) {
+			setPlatform(platform);
+			expect(
+				callGetCodecName({
+					codec,
+					hardwareAcceleration: 'if-possible',
+					hardwareEncoder: 'qsv',
+				}),
+			).toEqual({encoderName, hardwareAccelerated: true});
+		}
+	});
+
+	test('software path unaffected', () => {
+		setPlatform('win32');
+		expect(
+			callGetCodecName({
+				codec: 'h264',
+				hardwareAcceleration: 'disable',
+				hardwareEncoder: 'qsv',
+			}),
+		).toEqual({encoderName: 'libx264', hardwareAccelerated: false});
+	});
+
+	test('macOS keeps VideoToolbox', () => {
+		setPlatform('darwin');
+		expect(
+			callGetCodecName({
+				codec: 'h264',
+				hardwareAcceleration: 'required',
+				hardwareEncoder: 'qsv',
+			}),
+		).toEqual({encoderName: 'h264_videotoolbox', hardwareAccelerated: true});
+	});
+});

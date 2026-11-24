@@ -14,6 +14,7 @@ const {
 	bundleCacheOption,
 	sampleRateOption,
 	disableSharedMemoryCaptureOption,
+	hardwareEncoderOption,
 } = BrowserSafeApis.options;
 
 export const processVideoJob = async ({
@@ -147,6 +148,8 @@ export const processVideoJob = async ({
 		metadata: job.metadata,
 		hardwareAcceleration:
 			job.type === 'video' ? job.hardwareAcceleration : 'disable',
+		// Studio has no UI for this yet: honor remotion.config.ts and REMOTION_HW_ENCODER
+		hardwareEncoder: hardwareEncoderOption.getValue({commandLine: {}}).value,
 		chromeMode: job.chromeMode,
 		offthreadVideoThreads: job.offthreadVideoThreads,
 		mediaCacheSizeInBytes: job.mediaCacheSizeInBytes,

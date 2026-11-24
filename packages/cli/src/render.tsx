@@ -42,6 +42,7 @@ const {
 	publicDirOption,
 	metadataOption,
 	hardwareAccelerationOption,
+	hardwareEncoderOption,
 	chromeModeOption,
 	offthreadVideoThreadsOption,
 	audioLatencyHintOption,
@@ -261,6 +262,9 @@ export const render = async (
 	const hardwareAcceleration = hardwareAccelerationOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const hardwareEncoder = hardwareEncoderOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 	const audioLatencyHint = audioLatencyHintOption.getValue({
 		commandLine: parsedCli,
 	}).value;
@@ -346,6 +350,7 @@ export const render = async (
 		publicPath,
 		metadata,
 		hardwareAcceleration,
+		hardwareEncoder,
 		chromeMode,
 		offthreadVideoThreads,
 		audioLatencyHint,

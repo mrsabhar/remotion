@@ -20,7 +20,10 @@ import type {
 	StillImageFormat,
 	VideoImageFormat,
 } from '@remotion/renderer';
-import type {HardwareAccelerationOption} from '@remotion/renderer/client';
+import type {
+	HardwareAccelerationOption,
+	HardwareEncoder,
+} from '@remotion/renderer/client';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {StudioServerInternals} from '@remotion/studio-server';
 import type {StudioKeyboardShortcuts} from '@remotion/studio-shared';
@@ -139,6 +142,7 @@ const {
 	audioCodecOption,
 	publicPathOption,
 	hardwareAccelerationOption,
+	hardwareEncoderOption,
 	audioLatencyHintOption,
 	enableCrossSiteIsolationOption,
 	imageSequencePatternOption,
@@ -748,6 +752,10 @@ type FlatConfig = RemotionConfigObject &
 			hardwareAccelerationOption: HardwareAccelerationOption,
 		) => void;
 		/**
+		 * Choose the hardware encoder family on Windows and Linux when hardware acceleration is enabled: 'nvenc' (default) or 'qsv' (Intel Quick Sync Video).
+		 */
+		setHardwareEncoder: (hardwareEncoder: HardwareEncoder | null) => void;
+		/**
 		 * Forces Remotion to bind to an IPv4 interface for the Studio server.
 		 * Default: false
 		 */
@@ -954,6 +962,7 @@ export const Config: FlatConfig = {
 	setPublicPath: publicPathOption.setConfig,
 	setImageSequencePattern: imageSequencePatternOption.setConfig,
 	setHardwareAcceleration: hardwareAccelerationOption.setConfig,
+	setHardwareEncoder: hardwareEncoderOption.setConfig,
 	setEnableCrossSiteIsolation: enableCrossSiteIsolationOption.setConfig,
 	setAskAIEnabled: askAIOption.setConfig,
 	setPublicLicenseKey: publicLicenseKeyOption.setConfig,

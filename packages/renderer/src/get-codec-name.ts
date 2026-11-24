@@ -3,6 +3,7 @@ import type {Codec} from './codec';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import type {HardwareAccelerationOption} from './options/hardware-acceleration';
+import type {HardwareEncoder} from './options/hardware-encoder';
 
 export type CodecSettings = {
 	encoderName: string;
@@ -46,12 +47,14 @@ export const getCodecName = ({
 	proResBitsPerMacroblock,
 	crf,
 	hardwareAcceleration,
+	hardwareEncoder,
 	logLevel,
 	indent,
 	onLog,
 }: {
 	codec: Codec;
 	hardwareAcceleration: HardwareAccelerationOption;
+	hardwareEncoder: HardwareEncoder | null;
 	encodingMaxRate: string | null;
 	encodingBufferSize: string | null;
 	proResBitsPerMacroblock: number | null;
@@ -129,13 +132,16 @@ export const getCodecName = ({
 			return {encoderName: 'h264_videotoolbox', hardwareAccelerated: true};
 		}
 
-		// NVENC for Linux/Windows
+		// NVENC (default) or QSV for Linux/Windows
 		if (
 			preferredHwAcceleration &&
 			(process.platform === 'linux' || process.platform === 'win32') &&
 			!unsupportedQualityOption
 		) {
-			return {encoderName: 'h264_nvenc', hardwareAccelerated: true};
+			return {
+				encoderName: hardwareEncoder === 'qsv' ? 'h264_qsv' : 'h264_nvenc',
+				hardwareAccelerated: true,
+			};
 		}
 
 		warnAboutDisabledHardwareAcceleration();
@@ -152,13 +158,16 @@ export const getCodecName = ({
 			return {encoderName: 'hevc_videotoolbox', hardwareAccelerated: true};
 		}
 
-		// NVENC for Linux/Windows
+		// NVENC (default) or QSV for Linux/Windows
 		if (
 			preferredHwAcceleration &&
 			(process.platform === 'linux' || process.platform === 'win32') &&
 			!unsupportedQualityOption
 		) {
-			return {encoderName: 'hevc_nvenc', hardwareAccelerated: true};
+			return {
+				encoderName: hardwareEncoder === 'qsv' ? 'hevc_qsv' : 'hevc_nvenc',
+				hardwareAccelerated: true,
+			};
 		}
 
 		warnAboutDisabledHardwareAcceleration();
