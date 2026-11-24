@@ -12,13 +12,6 @@ import type {X264Preset} from './options/x264-preset';
 import type {PixelFormat} from './pixel-format';
 import {truthy} from './truthy';
 
-// QSV ICQ quality (lower = better). Measured on one Intel Core Ultra system with
-// h264_qsv/hevc_qsv, veryslow preset, lookahead on, VMAF scored at 1080p:
-//   simple 4K motion-graphics ad: 22 -> VMAF 98.0, 28 -> 97.5, 34 -> 96.3 (H.264 and HEVC)
-//   detailed 4K footage:          22 -> 98.2 (87 Mbps), 26 -> 96.8 (37 Mbps)    (H.264)
-// 23 therefore targets a VMAF of roughly 97-98 (not compared against x264's CRF 18 default).
-// On detailed footage it needs a high bitrate; raise the number to trade quality for size.
-// Override with the REMOTION_QSV_QUALITY environment variable.
 const DEFAULT_QSV_QUALITY = '23';
 
 const firstEncodingStepOnly = ({
@@ -95,7 +88,7 @@ const firstEncodingStepOnly = ({
 					process.env.REMOTION_QSV_QUALITY ?? DEFAULT_QSV_QUALITY,
 					'-look_ahead',
 					'1',
-					// oneVPL target usage 1 (best quality): +~1 VMAF at equal size
+					// oneVPL target usage 1 (best quality)
 					...(x264Preset ? [] : ['-preset', 'veryslow']),
 				]
 			: null,

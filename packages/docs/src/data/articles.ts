@@ -1126,6 +1126,15 @@ export const articles = [
 		slug: 'options/hardware-acceleration',
 	},
 	{
+		id: 'options/hardware-encoder',
+		title: 'Hardware Encoder',
+		relativePath: 'docs/options/hardware-encoder.mdx',
+		compId: 'articles-docs-options-hardware-encoder',
+		crumb: 'Options',
+		noAi: false,
+		slug: 'options/hardware-encoder',
+	},
+	{
 		id: 'options/height',
 		title: 'Override Height',
 		relativePath: 'docs/options/height.mdx',

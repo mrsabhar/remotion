@@ -132,7 +132,6 @@ export const getCodecName = ({
 			return {encoderName: 'h264_videotoolbox', hardwareAccelerated: true};
 		}
 
-		// NVENC (default) or QSV for Linux/Windows
 		if (
 			preferredHwAcceleration &&
 			(process.platform === 'linux' || process.platform === 'win32') &&
@@ -158,7 +157,6 @@ export const getCodecName = ({
 			return {encoderName: 'hevc_videotoolbox', hardwareAccelerated: true};
 		}
 
-		// NVENC (default) or QSV for Linux/Windows
 		if (
 			preferredHwAcceleration &&
 			(process.platform === 'linux' || process.platform === 'win32') &&

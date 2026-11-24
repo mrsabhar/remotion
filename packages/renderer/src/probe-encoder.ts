@@ -20,8 +20,6 @@ export type EncoderProbeResult = {
 	reason: string | null;
 };
 
-// One probe per FFmpeg binary and encoder per process. A failed NVENC probe on an
-// Intel-only PC would otherwise repeat at the start of every render.
 const probeCache = new Map<string, EncoderProbeResult>();
 
 const hardwareEncoderHint = (encoderName: string) => {
@@ -36,10 +34,6 @@ const hardwareEncoderHint = (encoderName: string) => {
 	return '';
 };
 
-/**
- * Probes FFmpeg to check if a specific encoder is available, and says why not if it is not.
- * Results are cached per FFmpeg binary and encoder.
- */
 export const probeEncoder = ({
 	encoderName,
 	binariesDirectory,
@@ -166,13 +160,6 @@ export const probeEncoderAvailability = (
 	options: Parameters<typeof probeEncoder>[0],
 ): boolean => probeEncoder(options).available;
 
-/**
- * Picks the hardware encoder when none was chosen explicitly:
- * NVENC first (the existing default), then QSV, using the cached probe.
- * An explicit `hardwareEncoder` is returned as-is.
- * Returns null if nothing is available (the caller then falls back to software,
- * or fails for `required`).
- */
 export const resolveHardwareEncoder = ({
 	codec,
 	hardwareAcceleration,
@@ -196,7 +183,6 @@ export const resolveHardwareEncoder = ({
 	encodingMaxRate: string | null;
 	encodingBufferSize: string | null;
 	proResBitsPerMacroblock: number | null;
-	// Replaces the FFmpeg probe, for tests
 	probe: typeof probeEncoder | null;
 }): HardwareEncoder | null => {
 	if (hardwareEncoder !== null || hardwareAcceleration === 'disable') {

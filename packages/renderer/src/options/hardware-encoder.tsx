@@ -28,7 +28,7 @@ export const validateHardwareEncoder = (
 
 export const hardwareEncoderOption = {
 	name: 'Hardware encoder',
-	addedIn: '4.0.544',
+	addedIn: '4.0.547',
 	cliFlag,
 	description: () => (
 		<>
@@ -45,9 +45,8 @@ export const hardwareEncoderOption = {
 			<br />
 			With {'"qsv"'} and no <code>crf</code> or <code>videoBitrate</code> set,
 			Remotion uses intelligent constant quality (ICQ) with look-ahead, because
-			QSV has no usable default quality target. The default ICQ value is 23,
-			which scored VMAF 97 to 98 on the content we tested; set the{' '}
-			<code>REMOTION_QSV_QUALITY</code> environment variable to change it
+			QSV has no usable default quality target. The default ICQ value is 23; set
+			the <code>REMOTION_QSV_QUALITY</code> environment variable to change it
 			(higher is smaller and lower quality).
 			<br />
 			Your FFmpeg build must include the QSV encoders (Remotion&apos;s bundled
