@@ -5,6 +5,7 @@ import {enableAv1} from './compile-av1.mjs';
 import {enableFdkAac} from './compile-fdkaac.mjs';
 import {enableLibMp3Lame} from './compile-libmp3lame.mjs';
 import {enableNvencHeaders} from './compile-nvenc.mjs';
+import {enableVpl} from './compile-vpl.mjs';
 import {enableOpus} from './compile-opus.mjs';
 import {enableVpx} from './compile-vpx.mjs';
 import {enableX264} from './compile-x264.mjs';
@@ -187,6 +188,9 @@ const isLambdaTarget =
 const shouldEnableAv1Encoder = !isLambdaTarget;
 const shouldEnableNvenc =
 	process.platform === 'linux' && (isWindows || process.arch !== 'arm64');
+// Intel Quick Sync Video. Windows only for now: on Linux, FFmpeg's QSV needs libva,
+// which is not bundled.
+const shouldEnableQsv = isWindows;
 
 await enableFdkAac(isWindows);
 enableAv1({isWindows, enableEncoder: shouldEnableAv1Encoder});
@@ -197,6 +201,7 @@ enableX265(isMusl, isWindows, isOldCmake);
 enableLibMp3Lame(isWindows);
 enableOpus(isWindows);
 enableNvencHeaders(shouldEnableNvenc);
+enableVpl(shouldEnableQsv);
 
 const TAG = 'n7.1';
 
@@ -346,6 +351,11 @@ execSync(
 			: null,
 		shouldEnableNvenc ? '--enable-encoder=h264_nvenc' : null,
 		shouldEnableNvenc ? '--enable-encoder=hevc_nvenc' : null,
+		shouldEnableQsv ? '--enable-libvpl' : null,
+		shouldEnableQsv ? '--enable-d3d11va' : null,
+		shouldEnableQsv ? '--enable-dxva2' : null,
+		shouldEnableQsv ? '--enable-encoder=h264_qsv' : null,
+		shouldEnableQsv ? '--enable-encoder=hevc_qsv' : null,
 		'--disable-muxers',
 		'--enable-muxer=webm,opus,mp4,wav,mp3,mov,matroska,hevc,h264,gif,image2,image2pipe,adts,m4a,mpegts,null,avi',
 		'--enable-libx264',

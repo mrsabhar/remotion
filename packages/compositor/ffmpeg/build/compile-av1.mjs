@@ -3,7 +3,7 @@ import {existsSync, mkdirSync, rmSync, writeFileSync} from 'node:fs';
 import {join, dirname} from 'node:path';
 import {MACOS_DEPLOYMENT_TARGET, PREFIX} from './const.mjs';
 
-const getCmakeCommand = () => {
+export const getCmakeCommand = () => {
 	try {
 		execSync('cmake --version', {stdio: 'ignore'});
 		return 'cmake';
@@ -17,7 +17,7 @@ const getCmakeCommand = () => {
 	}
 };
 
-const getToolPath = (tool) => {
+export const getToolPath = (tool) => {
 	try {
 		return execSync(`command -v ${tool}`, {
 			encoding: 'utf8',
