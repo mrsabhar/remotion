@@ -20,8 +20,6 @@ const paths = [
 	path.join(process.cwd(), 'nv-codec-headers'),
 	path.join(process.cwd(), 'vpl'),
 	path.join(process.cwd(), 'vpl-build'),
-	path.join(process.cwd(), 'libdrm'),
-	path.join(process.cwd(), 'libva'),
 	path.join(process.cwd(), 'bindings.rs'),
 	path.join(process.cwd(), 'ffmpeg.tar.gz'),
 	path.join(process.cwd(), 'out-test.mp4'),
