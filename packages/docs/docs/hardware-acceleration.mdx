@@ -23,7 +23,7 @@ If you do not set a [`hardwareEncoder`](/docs/options/hardware-encoder), Remotio
 If none works, `"if-possible"` falls back to software encoding and `"required"` fails with the reason for each encoder.
 
 Remotion's bundled FFmpeg includes NVENC, and QSV on Windows x64 and Linux x64 (glibc).  
-For QSV you need an Intel GPU and a current Intel graphics driver (Windows), or the Intel media driver (`intel-media-va-driver-non-free`) and the oneVPL runtime (`libmfx-gen1.2`, `libvpl2`) on Linux. On Linux distributions that do not keep VA-API drivers in `/usr/lib/x86_64-linux-gnu/dri`, set `LIBVA_DRIVERS_PATH` to the directory that contains `iHD_drv_video.so`.  
+For QSV you need an Intel GPU and a current Intel graphics driver (Windows), or on Linux the Intel media driver (`intel-media-va-driver-non-free`), the oneVPL GPU runtime (`libmfx-gen1.2`) and the libraries they use (`libva2`, `libva-drm2`, `libdrm2`; the package manager installs these as dependencies). Your user also needs access to the GPU device in `/dev/dri`, usually through the `render` group.  
 On other platforms, pass an FFmpeg build that has the QSV encoders (`h264_qsv`, `hevc_qsv`) and the `libfdk_aac` audio encoder via [`binariesDirectory`](/docs/options/binaries-directory), otherwise use [`muted`](/docs/options/muted).
 
 ## Enable hardware accelerated encoding
