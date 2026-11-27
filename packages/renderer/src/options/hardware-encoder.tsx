@@ -50,11 +50,12 @@ export const hardwareEncoderOption = {
 			(higher is smaller and lower quality).
 			<br />
 			Remotion&apos;s bundled FFmpeg includes the QSV encoders on Windows x64
-			and Linux x64 (glibc). On other platforms, or if you pass your own FFmpeg
-			with <code>binariesDirectory</code>, that build must include the QSV
-			encoders and the audio encoder Remotion uses (<code>libfdk_aac</code>).
-			The <code>REMOTION_HW_ENCODER</code> environment variable is also read
-			when neither the CLI flag nor the config option is set.
+			and Linux x64 (glibc). QSV is supported on Intel Panther Lake GPUs and
+			newer. On other platforms, or if you pass your own FFmpeg with{' '}
+			<code>binariesDirectory</code>, that build must include the QSV encoders
+			and the audio encoder Remotion uses (<code>libfdk_aac</code>). The{' '}
+			<code>REMOTION_HW_ENCODER</code> environment variable is also read when
+			neither the CLI flag nor the config option is set.
 		</>
 	),
 	ssrName: 'hardwareEncoder',

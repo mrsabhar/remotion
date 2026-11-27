@@ -14,7 +14,7 @@ Since encoding is platform- and codec-specific, only a few scenarios are support
 
 - macOS: Acceleration using VideoToolbox
 - Linux and Windows: Acceleration using NVENC (requires an NVIDIA GPU) (from v4.0.484)
-- Linux and Windows: Acceleration using Intel Quick Sync Video (QSV) (requires an Intel GPU, from v4.0.547)
+- Linux and Windows: Acceleration using Intel Quick Sync Video (QSV) (requires an Intel GPU, Panther Lake or newer, from v4.0.547)
 - ProRes is supported from v4.0.228, H.264 and H.265 are supported from v4.0.236
 
 ## Choosing the encoder on Windows and Linux
@@ -23,7 +23,8 @@ If you do not set a [`hardwareEncoder`](/docs/options/hardware-encoder), Remotio
 If none works, `"if-possible"` falls back to software encoding and `"required"` fails with the reason for each encoder.
 
 Remotion's bundled FFmpeg includes NVENC, and QSV on Windows x64 and Linux x64 (glibc).  
-For QSV you need an Intel GPU and a current Intel graphics driver (Windows), or on Linux the Intel media driver (`intel-media-va-driver-non-free`), the oneVPL GPU runtime (`libmfx-gen1.2`) and the libraries they use (`libva2`, `libva-drm2`, `libdrm2`; the package manager installs these as dependencies). Your user also needs access to the GPU device in `/dev/dri`, usually through the `render` group.  
+QSV is supported on Intel Panther Lake (Core Ultra series 3) GPUs and newer. Older Intel GPUs are not supported, but Remotion does not block them: it uses QSV if the test frame encodes.  
+For QSV you need a current Intel graphics driver (Windows), or on Linux the Intel media driver (`intel-media-va-driver-non-free`), the oneVPL GPU runtime (`libmfx-gen1.2`) and the libraries they use (`libva2`, `libva-drm2`, `libdrm2`; the package manager installs these as dependencies). Your user also needs access to the GPU device in `/dev/dri`, usually through the `render` group.  
 On other platforms, pass an FFmpeg build that has the QSV encoders (`h264_qsv`, `hevc_qsv`) and the `libfdk_aac` audio encoder via [`binariesDirectory`](/docs/options/binaries-directory), otherwise use [`muted`](/docs/options/muted).
 
 ## Enable hardware accelerated encoding
