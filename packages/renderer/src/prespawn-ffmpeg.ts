@@ -204,6 +204,7 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 		encodingBufferSize: options.encodingBufferSize,
 		proResBitsPerMacroblock: options.proResBitsPerMacroblock,
 		probe: null,
+		checkIntelGpu: null,
 	});
 
 	const resolvedHardwareAcceleration = resolveHardwareAcceleration({

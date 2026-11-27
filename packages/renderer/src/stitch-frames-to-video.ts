@@ -448,6 +448,7 @@ const innerStitchFramesToVideo = async (
 				encodingBufferSize: bufferSize,
 				proResBitsPerMacroblock,
 				probe: null,
+				checkIntelGpu: null,
 			});
 
 	const resolvedHardwareAcceleration = preEncodedFileLocation

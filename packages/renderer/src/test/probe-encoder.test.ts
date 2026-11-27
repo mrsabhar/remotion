@@ -232,6 +232,7 @@ describe('resolveHardwareEncoder', () => {
 		encodingBufferSize: null,
 		proResBitsPerMacroblock: null,
 		probe: null,
+		checkIntelGpu: () => undefined,
 	};
 	const originalPlatform = process.platform;
 	afterEach(() => {
@@ -342,6 +343,7 @@ describe('resolveHardwareEncoder across machines', () => {
 		encodingBufferSize: null,
 		proResBitsPerMacroblock: null,
 		probe,
+		checkIntelGpu: () => undefined,
 		...extra,
 	});
 

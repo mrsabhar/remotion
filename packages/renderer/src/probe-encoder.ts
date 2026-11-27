@@ -9,6 +9,7 @@ import {
 	getCodecName,
 	hasSpecifiedUnsupportedHardwareQualifySettings,
 } from './get-codec-name';
+import {checkIntelGpuOnce} from './intel-gpu';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import type {HardwareAccelerationOption} from './options/hardware-acceleration';
@@ -172,6 +173,7 @@ export const resolveHardwareEncoder = ({
 	encodingBufferSize,
 	proResBitsPerMacroblock,
 	probe,
+	checkIntelGpu,
 }: {
 	codec: Codec;
 	hardwareAcceleration: HardwareAccelerationOption;
@@ -184,12 +186,10 @@ export const resolveHardwareEncoder = ({
 	encodingBufferSize: string | null;
 	proResBitsPerMacroblock: number | null;
 	probe: typeof probeEncoder | null;
+	checkIntelGpu: typeof checkIntelGpuOnce | null;
 }): HardwareEncoder | null => {
-	if (hardwareEncoder !== null || hardwareAcceleration === 'disable') {
-		return hardwareEncoder;
-	}
-
 	if (
+		hardwareAcceleration === 'disable' ||
 		(codec !== 'h264' && codec !== 'h265') ||
 		(process.platform !== 'win32' && process.platform !== 'linux') ||
 		hasSpecifiedUnsupportedHardwareQualifySettings({
@@ -199,7 +199,15 @@ export const resolveHardwareEncoder = ({
 			proResBitsPerMacroblock,
 		})
 	) {
-		return null;
+		return hardwareEncoder;
+	}
+
+	if (hardwareEncoder !== null) {
+		if (hardwareEncoder === 'qsv') {
+			(checkIntelGpu ?? checkIntelGpuOnce)({indent, logLevel});
+		}
+
+		return hardwareEncoder;
 	}
 
 	const reasons: string[] = [];
@@ -216,6 +224,10 @@ export const resolveHardwareEncoder = ({
 				{indent, logLevel, tag: 'resolveHardwareEncoder()'},
 				`Using hardware encoder "${encoderName}".`,
 			);
+			if (candidate === 'qsv') {
+				(checkIntelGpu ?? checkIntelGpuOnce)({indent, logLevel});
+			}
+
 			return candidate;
 		}
 
