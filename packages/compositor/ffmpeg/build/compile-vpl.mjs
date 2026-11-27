@@ -4,6 +4,10 @@ import {join} from 'node:path';
 import {getCmakeCommand, getToolPath} from './compile-av1.mjs';
 import {PREFIX} from './const.mjs';
 
+// Intel oneVPL dispatcher (MIT), linked statically into libavcodec. It loads the
+// QSV runtime when an encoder is opened: from the Intel graphics driver on
+// Windows, from libmfx-gen on Linux (which needs the system libva and libdrm).
+// FFmpeg 7.1 needs libvpl >= 2.6.
 const VPL_TAG = 'v2.15.0';
 const VPL_BUILD_DIR = 'vpl-build';
 
@@ -65,6 +69,8 @@ export const enableVpl = (shouldEnableQsv, isWindows) => {
 	execSync('make', {cwd: VPL_BUILD_DIR, stdio: 'inherit'});
 	execSync('make install', {cwd: VPL_BUILD_DIR, stdio: 'inherit'});
 
+	// FFmpeg is configured without `--pkg-config-flags=--static`, so move the
+	// static link dependencies of the dispatcher from Libs.private to Libs.
 	const pcPath = join(installPrefix, 'lib', 'pkgconfig', 'vpl.pc');
 	const pc = readFileSync(pcPath, 'utf8');
 	const privateLibs = pc.match(/^Libs\.private:(.*)$/m)?.[1]?.trim() ?? '';

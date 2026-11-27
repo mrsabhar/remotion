@@ -5,7 +5,6 @@ import {enableAv1} from './compile-av1.mjs';
 import {enableFdkAac} from './compile-fdkaac.mjs';
 import {enableLibMp3Lame} from './compile-libmp3lame.mjs';
 import {enableNvencHeaders} from './compile-nvenc.mjs';
-import {enableVaapi} from './compile-vaapi.mjs';
 import {enableVpl} from './compile-vpl.mjs';
 import {enableOpus} from './compile-opus.mjs';
 import {enableVpx} from './compile-vpx.mjs';
@@ -202,7 +201,6 @@ enableX265(isMusl, isWindows, isOldCmake);
 enableLibMp3Lame(isWindows);
 enableOpus(isWindows);
 enableNvencHeaders(shouldEnableNvenc);
-enableVaapi(shouldEnableQsv && !isWindows);
 enableVpl(shouldEnableQsv, isWindows);
 
 const TAG = 'n7.1';
@@ -354,11 +352,11 @@ execSync(
 		shouldEnableNvenc ? '--enable-encoder=h264_nvenc' : null,
 		shouldEnableNvenc ? '--enable-encoder=hevc_nvenc' : null,
 		shouldEnableQsv ? '--enable-libvpl' : null,
-		shouldEnableQsv ? '--disable-hwaccels' : null,
 		shouldEnableQsv && isWindows ? '--enable-d3d11va' : null,
 		shouldEnableQsv && isWindows ? '--enable-dxva2' : null,
-		shouldEnableQsv && !isWindows ? '--enable-vaapi' : null,
-		shouldEnableQsv && !isWindows ? '--disable-libdrm' : null,
+		// On Linux the QSV runtime opens its own VA display. Linking libva here
+		// would stop FFmpeg from starting on machines without it.
+		shouldEnableQsv && !isWindows ? '--disable-vaapi' : null,
 		shouldEnableQsv ? '--enable-encoder=h264_qsv' : null,
 		shouldEnableQsv ? '--enable-encoder=hevc_qsv' : null,
 		'--disable-muxers',

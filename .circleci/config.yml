@@ -19,8 +19,6 @@ jobs:
       - run: sudo apt-get update
       - run: curl https://sh.rustup.rs -sSf | sh -s -- -y
       - run: sudo apt-get install -y yasm nasm clang make zlib1g-dev meson ninja-build autoconf automake libtool patchelf
-      - run: sudo apt-get install -y python3-pip && pip3 install --user 'meson>=0.63,<1.8'
-      - run: echo 'export PATH=$HOME/.local/bin:$PATH' >> $BASH_ENV
       - run: node ../download.mjs buildInputs
       - run: node clean.mjs
       - run: node compile-ffmpeg.mjs
